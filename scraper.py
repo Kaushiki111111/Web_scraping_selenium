@@ -1,18 +1,29 @@
-import requests
-from bs4 import BeautifulSoup
-Youtube_trending_url="https://www.youtube.com/feed/trending"
-#Requests does not execute java script
-r=requests.get(Youtube_trending_url)
-print('Status_code',r.status_code)
-print('if returns 200->successful',r.status_code==200)
-#print(r.text[:5000])
-with open('trending.html','w')as f:
-  f.write(r.text)
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+youtube_trending_url="https://www.youtube.com/feed/trending"
 
-doc=BeautifulSoup(r.text,'html.parser')
-print('page-title',doc.title)
-print('Page Title text',doc.title.text)
-#To find video divs:
-video_divs=doc.find_all('div',class_=" ytd-video-renderer")
-print(f'Found {(len(video_divs))} videos')
-   
+def get_driver():
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    driver = webdriver.Chrome(options=chrome_options)
+    return driver
+
+def get_videos(driver):
+  driver.get(youtube_trending_url)
+  print("Fetching the divs:")
+  video_divs="ytd-video-renderer"
+  VIDEO_DIV=driver.find_elements(by=By.TAG_NAME,value=video_divs)
+  return VIDEO_DIV
+
+
+if __name__=="__main__":
+  print("Creating driver")
+  driver=get_driver()
+  print("Fetching the page:")
+  videos=get_videos(driver)
+  print(f"Found {(len(videos))}videos in trending")
+  
+ 
